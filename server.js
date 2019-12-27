@@ -54,6 +54,7 @@ io.on('connection', (socket) => {
     for (let i = 0; i < numberOfPlayer; i++) {
       console.log(i);
       
+      io.to(userList[i].id).emit('role', {id: userList[i].id, role: 'ghost'})
       io.to(userList[i].id).emit('deck', player[i])
       io.emit('others', {user: userList[i].id, deckLength: player[i].length})
       io.emit('turn-start', userList[0])
