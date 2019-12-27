@@ -54,6 +54,9 @@ io.on('connection', (socket) => {
       
       io.to(userList[i].id).emit('deck', player[i])
     }
+    //준용 테스트 코드입니다.
+    let test= 111111
+    console.log(test);
     
     
   })
