@@ -19,6 +19,7 @@ memberCount = 0
 readyCount = 0
 nowTurn = ''
 round = 4
+goldCount = 0
 
 io.on('connection', (socket) => {
   console.log("SOCKETIO Connect EVENT: ", socket.id, " client Connect");
@@ -31,6 +32,8 @@ io.on('connection', (socket) => {
 
   socket.on('gameStart', ()=>{
     console.log('게임시작');
+
+    goldcount = 0
 
     numberOfPlayer = userList.length
     //크라켄 (무조건 1장)
@@ -79,16 +82,18 @@ io.on('connection', (socket) => {
   })
 
   socket.on('turn-select', (turn) => {
+
     nowTurn = turn.id
     let nowSelect = turn.selectCard //선택한 카드의 인덱스
-
-    let si
 
     userList.forEach((user,i) => {
       if (user.id === turn.id) {
         si = i
       }
     })
+
+    //카드 체크 -오준용
+    cardCheck(turn,si);
 
     player[si].splice(turn.selectCard, 1)
     
@@ -107,7 +112,35 @@ io.on('connection', (socket) => {
   });
 });
 
-
 server.listen(port, () => {
   console.log('Server On !');
 });
+
+//선택한 카드 확인 함수
+cardCheck = (turn,playerIndex) => {
+  //크라켄 선택 ==> 유령 승리
+  if(player[playerIndex][turn.selectCard]  === "크라켄") {
+    console.log("크라켄 등장");
+  }
+
+  //보물상자 선택
+  else if(player[playerIndex][turn.selectCard]  === "보물상자") {
+    console.log("보물상자 등장");
+    goldCount++;
+    console.log("찾은 보물상자 수 : ",goldCount, "총 보물상자 수 : ", numberOfPlayer);
+    //보물상자 수 == 플레이어 수 (게임종료, 해적 승리)
+    if(goldCount >= numberOfPlayer){
+      console.log("보물상자 모두 찾음 해적 승리");
+    }
+  }
+  //빈상자 선택
+  else if(player[playerIndex][turn.selectCard]  === "빈상자") {
+    console.log("빈상자 입니다");
+  }
+
+  //이상한거 선택시
+  else {
+    console.log("==== CARD SELECT ERROR ====")
+  }
+}
+
