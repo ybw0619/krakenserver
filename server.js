@@ -59,12 +59,12 @@ io.on('connection', (socket) => {
       io.emit('turn-start', userList[0])
     }
     
+    
   })
 
-  })
-    io.emit('chat', data)
-  socket.on('chat', (data) => {
-  //호준
+  socket.on('turn-select', (turn) => {
+    nowTurn = turn.id
+    let nowSelect = turn.selectCard //선택한 카드의 인덱스
 
     let si
 
