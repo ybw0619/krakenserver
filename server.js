@@ -68,10 +68,10 @@ io.on('connection', (socket) => {
 
     for (let i = 0; i < numberOfPlayer; i++) {
       console.log(i);
-      io.to(userList[i].id).emit('role', {id: userList[i].id, role: role[i]})
+      io.to(userList[i].id).emit('role', role[i])
       io.to(userList[i].id).emit('deck', player[i])
       io.emit('others', {user: userList[i].id, deckLength: player[i].length})
-      io.emit('turn-start', userList[0])
+      io.emit('turn-start', userList[0].id)
     }
     
     
@@ -89,13 +89,13 @@ io.on('connection', (socket) => {
       }
     })
 
-    player[si] = player[si].splice(turn.selectCard, 1)
+    player[si].splice(turn.selectCard, 1)
     
     console.log('player[si]',player[si])
 
     for (let i = 0; i < numberOfPlayer; i++) {
       io.emit('turn-start', nowTurn)
-      io.emit('others', {user: userList[i].id, deckLength: player[i].length})
+      io.emit('turn-end', {user: userList[i].id, deckLength: player[i].length})
     }
   })
 
