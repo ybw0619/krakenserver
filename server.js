@@ -53,10 +53,8 @@ io.on('connection', (socket) => {
       console.log(i);
       
       io.to(userList[i].id).emit('deck', player[i])
+      io.emit('others', {user: userList[i].id, deckLength: player[i].length})
     }
-    //준용 테스트 코드입니다.
-    let test= 111111
-    console.log(test);
     
     
   })
