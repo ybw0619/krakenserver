@@ -63,6 +63,12 @@ io.on('connection', (socket) => {
     
   })
 
+  //호준 채팅 (chat이벤트로 날아온데이터 전체한테 다시 뿌려주기.)
+  socket.on('chat', (data) => {
+    io.emit('chat', data)
+  })
+
+  
   socket.on('turn-select', (turn) => {
     nowTurn = turn.id
     let nowSelect = turn.selectCard //선택한 카드의 인덱스
