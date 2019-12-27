@@ -56,7 +56,6 @@ io.on('connection', (socket) => {
       io.emit('others', {user: userList[i].id, deckLength: player[i].length})
     }
     
-    
   })
 
 
