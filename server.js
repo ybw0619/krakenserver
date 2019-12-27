@@ -17,6 +17,8 @@ app.use('/', (req, res) => {
 userList=[]
 memberCount = 0
 readyCount = 0
+nowTurn = ''
+
 io.on('connection', (socket) => {
   console.log("SOCKETIO Connect EVENT: ", socket.id, " client Connect");
   io.emit('broadcast', `${socket.id}님이 참여했음`);
@@ -54,11 +56,33 @@ io.on('connection', (socket) => {
       
       io.to(userList[i].id).emit('deck', player[i])
       io.emit('others', {user: userList[i].id, deckLength: player[i].length})
+      io.emit('turn-start', userList[0])
     }
     
     
   })
 
+  socket.on('turn-select', (turn) => {
+    nowTurn = turn.id
+    let nowSelect = turn.selectCard //선택한 카드의 인덱스
+
+    let si
+
+    userList.forEach((user,i) => {
+      if (user.id === turn.id) {
+        si = i
+      }
+    })
+
+    player[si] = player[si].splice(turn.selectCard, 1)
+    
+    console.log('player[si]',player[si])
+
+    for (let i = 0; i < numberOfPlayer; i++) {
+      io.emit('turn-start', nowTurn)
+      io.emit('others', {user: userList[i].id, deckLength: player[i].length})
+    }
+  })
 
   socket.on('disconnect', () => {
     console.log("SOCKETIO disconnect EVENT: ", socket.id, " client disconnect");
