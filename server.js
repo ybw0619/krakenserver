@@ -17,9 +17,10 @@ app.use('/', (req, res) => {
 userList=[]
 memberCount = 0
 readyCount = 0
-nowTurn = ''
-round = 4
 goldCount = 0
+nowTurnId = ''
+round = 1
+nowTurn = 1
 
 io.on('connection', (socket) => {
   console.log("SOCKETIO Connect EVENT: ", socket.id, " client Connect");
@@ -32,6 +33,10 @@ io.on('connection', (socket) => {
 
   socket.on('gameStart', ()=>{
     console.log('게임시작');
+
+    //초기화
+    round = 1
+    nowTurn = 1
 
     goldcount = 0
 
@@ -71,19 +76,19 @@ io.on('connection', (socket) => {
     player = player.map(x => deck.splice(0, 5))
 
     for (let i = 0; i < numberOfPlayer; i++) {
-      console.log(i);
       io.to(userList[i].id).emit('role', role[i])
       io.to(userList[i].id).emit('deck', player[i])
-      io.emit('others', {user: userList[i].id, deckLength: player[i].length})
-      io.emit('turn-start', userList[0].id)
     }
     
+    for (let i = 0; i < numberOfPlayer; i++) {
+      io.emit('others', {user: userList[i].id, deckLength: player[i].length})
+      io.emit('turn-start', {id: userList[0].id, turn: nowTurn})
+    }
     
   })
 
   socket.on('turn-select', (turn) => {
-
-    nowTurn = turn.id
+    nowTurnId = turn.id
     let nowSelect = turn.selectCard //선택한 카드의 인덱스
 
     userList.forEach((user,i) => {
@@ -97,11 +102,42 @@ io.on('connection', (socket) => {
 
     player[si].splice(turn.selectCard, 1)
     
-    console.log('player[si]',player[si])
+    nowTurn = nowTurn + 1
+
+    console.log('nowTurn',nowTurn)
 
     for (let i = 0; i < numberOfPlayer; i++) {
-      io.emit('turn-start', nowTurn)
-      io.emit('turn-end', {user: userList[i].id, deckLength: player[i].length, select: turn.selectCard})
+      io.emit('turn-start', {id: nowTurnId, turn: nowTurn})
+      io.emit('turn-end', {user: turn.id, deckLength: player[i].length, select: turn.selectCard})
+    }
+  })
+
+  socket.on('round-end', (turn) => {
+    nowTurn = 1
+    round = round + 1
+
+    let temp = []
+
+    player.forEach(deck => {
+      deck.forEach(card => {
+        temp.push(card)
+      })
+    })
+
+    // 라운드 끝났으니까 다시 섞어섞어
+    temp.sort(() => Math.random() - Math.random())
+
+    //플레이어는 최대 8명
+    player = [[],[],[],[],[],[],[],[]]
+
+    //섞은 덱에서 다섯장씩 순서대로 분배분배
+    player = player.map(x => temp.splice(0, 5 - (round - 1)))
+
+    for (let i = 0; i < numberOfPlayer; i++) {
+      io.to(userList[i].id).emit('deck', player[i])
+    }
+    for (let i = 0; i < numberOfPlayer; i++) {
+      io.emit('others', {user: userList[i].id, deckLength: player[i].length})
     }
   })
 
@@ -109,8 +145,8 @@ io.on('connection', (socket) => {
     console.log("SOCKETIO disconnect EVENT: ", socket.id, " client disconnect");
     userList.splice(userList.findIndex(x=>x.id==socket.id), 1);
     io.emit('userList', userList)
-  });
-});
+  })
+})
 
 server.listen(port, () => {
   console.log('Server On !');
