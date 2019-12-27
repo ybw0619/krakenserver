@@ -58,6 +58,10 @@ io.on('connection', (socket) => {
     
   })
 
+  //호준
+  socket.on('chat', (data) => {
+    io.emit('chat', data)
+  })
 
   socket.on('disconnect', () => {
     console.log("SOCKETIO disconnect EVENT: ", socket.id, " client disconnect");
