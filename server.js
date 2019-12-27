@@ -43,7 +43,7 @@ io.on('connection', (socket) => {
     //5~6인 1~2, 7~8인 2~3
     if(numberOfPlayer >= 5){
       ghostcount = Math.ceil(numberOfPlayer/2)-2 + parseInt(Math.random()*10)%2
-      ghost = Array(get).fill("유령")
+      ghost = Array(ghostcount).fill("유령")
     } else {
       ghost = ["유령"]
     }
