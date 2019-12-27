@@ -18,6 +18,7 @@ userList=[]
 memberCount = 0
 readyCount = 0
 nowTurn = ''
+round = 4
 
 io.on('connection', (socket) => {
   console.log("SOCKETIO Connect EVENT: ", socket.id, " client Connect");
@@ -95,7 +96,7 @@ io.on('connection', (socket) => {
 
     for (let i = 0; i < numberOfPlayer; i++) {
       io.emit('turn-start', nowTurn)
-      io.emit('turn-end', {user: userList[i].id, deckLength: player[i].length})
+      io.emit('turn-end', {user: userList[i].id, deckLength: player[i].length, select: turn.selectCard})
     }
   })
 
